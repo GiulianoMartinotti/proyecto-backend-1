@@ -1,10 +1,9 @@
 const fs = require('fs').promises;
-const path = '../data/products.json';
+const path = require('path');
 
 class ProductManager {
     constructor() {
-        this.path = path;
-        this.init();
+        this.path = path.join(__dirname, '../data/products.json');
     }
 
     async init() {
@@ -17,7 +16,7 @@ class ProductManager {
 
     async getProducts() {
         const data = await fs.readFile(this.path, 'utf-8');
-        return JSON.parse(data);
+        return JSON.parse(data || '[]');
     }
 
     async getProductById(pid) {
@@ -37,17 +36,35 @@ class ProductManager {
     async updateProduct(pid, updateFields) {
         const products = await this.getProducts();
         const index = products.findIndex(p => p.id === pid);
-        if (index === -1) return null;
-        products[index] = { ...products[index], ...updateFields, id: pid };
+
+        if (index === -1) {
+            throw new Error(`Producto con ID ${pid} no encontrado.`);
+        }
+
+        if ('id' in updateFields) {
+            delete updateFields.id;
+        }
+
+        products[index] = { ...products[index], ...updateFields };
         await fs.writeFile(this.path, JSON.stringify(products, null, 2));
+
         return products[index];
     }
-
+    
     async deleteProduct(pid) {
         let products = await this.getProducts();
-        products = products.filter(p => p.id !== pid);
+        const index = products.findIndex(p => p.id === pid);
+
+        if (index === -1) {
+            throw new Error(`Producto con ID ${pid} no encontrado.`);
+        }
+
+        products.splice(index, 1); // elimina 1 elemento en el índice
         await fs.writeFile(this.path, JSON.stringify(products, null, 2));
+
+        return true; // confirmamos que se eliminó correctamente
     }
+
 }
 
 module.exports = ProductManager;

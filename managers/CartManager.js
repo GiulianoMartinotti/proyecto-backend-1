@@ -1,10 +1,9 @@
 const fs = require('fs').promises;
-const path = '../data/carts.json';
+const path = require('path');
 
 class CartManager {
     constructor() {
-        this.path = path;
-        this.init();
+        this.path = path.join(__dirname, '../data/carts.json');
     }
 
     async init() {
@@ -17,7 +16,7 @@ class CartManager {
 
     async getCarts() {
         const data = await fs.readFile(this.path, 'utf-8');
-        return JSON.parse(data);
+        return JSON.parse(data || '[]');
     }
 
     async createCart() {

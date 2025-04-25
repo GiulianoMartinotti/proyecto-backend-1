@@ -1,1 +1,62 @@
-[]
+[
+  {
+    "id": 1,
+    "name": "Mouse",
+    "price": 1500
+  },
+  {
+    "id": 2,
+    "name": "Teclado",
+    "price": 3000
+  },
+  {
+    "id": 3,
+    "name": "Mouse",
+    "price": 1500
+  },
+  {
+    "id": 5,
+    "name": "Monitor",
+    "price": 6000
+  },
+  {
+    "id": 6,
+    "name": "Mouse",
+    "price": 1500
+  },
+  {
+    "id": 8,
+    "name": "Monitor",
+    "price": 6000
+  },
+  {
+    "id": 9,
+    "name": "Mouse",
+    "price": 145000
+  },
+  {
+    "id": 10,
+    "name": "Teclado",
+    "price": 3000
+  },
+  {
+    "id": 11,
+    "name": "Monitor",
+    "price": 6000
+  },
+  {
+    "id": 12,
+    "name": "Mouse",
+    "price": 1500
+  },
+  {
+    "id": 13,
+    "name": "Teclado",
+    "price": 3000
+  },
+  {
+    "id": 14,
+    "name": "Monitor",
+    "price": 6000
+  }
+]
