@@ -1,0 +1,64 @@
+<div class="container mt-4">
+    <h1 class="text-primary mb-4">Productos en tiempo real</h1>
+
+    <!-- Formulario para agregar producto -->
+    <form id="product-form" class="row g-3">
+        <div class="col-md-5">
+            <input type="text" name="name" class="form-control" placeholder="Nombre del producto" required>
+        </div>
+        <div class="col-md-4">
+            <input type="number" name="price" class="form-control" placeholder="Precio" required>
+        </div>
+        <div class="col-md-3">
+            <button type="submit" class="btn btn-success w-100">Agregar producto</button>
+        </div>
+    </form>
+
+    <!-- Lista de productos -->
+    <ul id="product-list" class="list-group mt-4">
+        {{#each products}}
+        <li class="list-group-item d-flex justify-content-between align-items-center" data-id="{{id}}">
+            <span>{{name}} - ${{price}}</span>
+            <button class="btn btn-sm btn-danger" onclick="deleteProduct({{id}})">Eliminar</button>
+        </li>
+        {{/each}}
+    </ul>
+</div>
+
+<!-- Socket.io y JS -->
+<script src="/socket.io/socket.io.js"></script>
+<script>
+    const socket = io();
+
+    const form = document.getElementById('product-form');
+    const productList = document.getElementById('product-list');
+
+    form.addEventListener('submit', e => {
+        e.preventDefault();
+        const formData = new FormData(form);
+        const product = {
+            name: formData.get('name'),
+            price: parseFloat(formData.get('price'))
+        };
+        socket.emit('new-product', product);
+        form.reset();
+    });
+
+    socket.on('update-products', products => {
+        productList.innerHTML = '';
+        products.forEach(p => {
+            const li = document.createElement('li');
+            li.className = 'list-group-item d-flex justify-content-between align-items-center';
+            li.dataset.id = p.id;
+            li.innerHTML = `
+        <span>${p.name} - $${p.price}</span>
+        <button class="btn btn-sm btn-danger" onclick="deleteProduct(${p.id})">Eliminar</button>
+      `;
+            productList.appendChild(li);
+        });
+    });
+
+    function deleteProduct(id) {
+        socket.emit('delete-product', id);
+    }
+</script>

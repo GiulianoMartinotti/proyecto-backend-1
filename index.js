@@ -1,3 +1,65 @@
+const express = require('express');
+const { createServer } = require('http');
+const { Server } = require('socket.io');
+const exphbs = require('express-handlebars');
+const path = require('path');
+
+const ProductManager = require('./managers/ProductManager');
+
+const app = express();
+const httpServer = createServer(app);
+const io = new Server(httpServer);
+
+const productManager = new ProductManager();
+
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(express.static(path.join(__dirname, 'public')));
+
+
+app.engine('handlebars', exphbs.engine());
+app.set('view engine', 'handlebars');
+app.set('views', path.join(__dirname, 'views'));
+
+
+app.get('/', async (req, res) => {
+    const products = await productManager.getProducts();
+    res.render('home', { products });
+});
+
+
+app.get('/realtimeproducts', async (req, res) => {
+    const products = await productManager.getProducts();
+    res.render('realTimeProducts', { products });
+});
+
+
+io.on('connection', socket => {
+    console.log('Cliente conectado');
+
+    socket.on('new-product', async product => {
+        const newProduct = await productManager.addProduct(product);
+        const updatedProducts = await productManager.getProducts();
+        io.emit('update-products', updatedProducts);
+    });
+
+    socket.on('delete-product', async id => {
+        await productManager.deleteProduct(id);
+        const updatedProducts = await productManager.getProducts();
+        io.emit('update-products', updatedProducts);
+    });
+});
+
+const PORT = 3000;
+httpServer.listen(PORT, async () => {
+    await productManager.init();
+    console.log(`Servidor funcionando en http://localhost:${PORT}`);
+});
+
+//IMPORTANTE!
+// PRUEBAS PARA COMPROBAR EL FUNCIONAMIENTO (Pruebe si quiere profe, se las deje ordenadas justo abajo)
+
+/*
 const ProductManager = require('./managers/ProductManager');
 const CartManager = require('./managers/CartManager');
 
@@ -23,9 +85,8 @@ const run = async () => {
 };
 
 run();
+*/
 
-//IMPORTANTE!
-// PRUEBAS PARA COMPROBAR EL FUNCIONAMIENTO (Pruebe si quiere profe, se las deje ordenadas justo abajo)
 
 /* Prueba de eliminar productos
     console.log('Productos antes:', await productManager.getProducts());

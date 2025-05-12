@@ -10,5 +10,10 @@
   "engines": {
     "node": "22.14.0"
   },
-  "description": ""
+  "description": "",
+  "dependencies": {
+    "express": "^5.1.0",
+    "express-handlebars": "^8.0.1",
+    "socket.io": "^4.8.1"
+  }
 }
