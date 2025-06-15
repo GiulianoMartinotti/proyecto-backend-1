@@ -1,6 +1,27 @@
-<h1>Lista de Productos</h1>
+<h1>Lista de productos</h1>
+
+{{#if products.length}}
 <ul>
     {{#each products}}
-    <li>{{name}} - ${{price}}</li>
+    <li>
+        <strong>{{title}}</strong><br />
+        Descripción: {{description}}<br />
+        Precio: ${{price}}<br />
+        Stock: {{stock}}<br />
+        Categoría: {{category}}<br />
+        <form method="POST" action="/carts/665e6d04d7d13d68da1e9339/product/{{_id}}">
+            <button type="submit">Agregar al carrito</button>
+        </form>
+    </li>
+    <hr />
     {{/each}}
 </ul>
+{{else}}
+<p>No hay productos para mostrar.</p>
+{{/if}}
+
+<div>
+    {{#if hasPrevPage}} <a href="/?page={{prevPage}}">Anterior</a> {{/if}}
+    <span>Página actual: {{page}}</span>
+    {{#if hasNextPage}} <a href="/?page={{nextPage}}">Siguiente</a> {{/if}}
+</div>
