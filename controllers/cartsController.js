@@ -16,13 +16,14 @@ export const addProductToCart = async (req, res) => {
     const { cid, pid } = req.params;
 
     try {
+        console.log("CID recibido:", cid);
         const cart = await Cart.findById(cid);
         if (!cart) return res.status(404).json({ status: "error", message: "Carrito no encontrado" });
 
         const product = await Product.findById(pid);
         if (!product) return res.status(404).json({ status: "error", message: "Producto no encontrado" });
 
-        const existingProduct = cart.products.find(p => p.product.toString() === pid);
+        const existingProduct = cart.products.find(p => p.product.equals(pid));
 
         if (existingProduct) {
             existingProduct.quantity += 1;
@@ -31,7 +32,7 @@ export const addProductToCart = async (req, res) => {
         }
 
         await cart.save();
-        res.json({ status: "success", payload: cart });
+        res.redirect(`/carts/${cid}`);
 
     } catch (error) {
         res.status(500).json({ status: "error", message: "Error al agregar producto al carrito", error });

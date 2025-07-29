@@ -4,36 +4,24 @@ import Cart from "../models/cart.js";
 // Función para renderizar la vista principal con productos paginados
 const renderHome = async (req, res) => {
     try {
-        const { page = 1, limit = 10, sort, query } = req.query;
+        const products = await Product.find().lean();
 
-        // Filtro por categoría si se pasa el parámetro query
-        const filter = query ? { category: query } : {};
-
-        // Configuración de paginación y ordenamiento
-        const options = {
-            page: parseInt(page),
-            limit: parseInt(limit),
-            sort: sort ? { price: sort === "asc" ? 1 : -1 } : {},
-            lean: true,
-        };
-
-
-        const result = await Product.paginate(filter, options);
-
-        console.log("Productos obtenidos:", result.docs);
+        // Buscar un carrito existente o crear uno si no hay ninguno
+        let cart = await Cart.findOne();
+        if (!cart) {
+            cart = await Cart.create({ products: [] });
+        }
+        console.log("Cart usado en la vista:", cart);
         res.render("home", {
-            products: result.docs,
-            hasPrevPage: result.hasPrevPage,
-            hasNextPage: result.hasNextPage,
-            prevPage: result.prevPage,
-            nextPage: result.nextPage,
-            page: result.page,
+            products,
+            cartId: cart._id.toString()
         });
     } catch (err) {
         console.error(err);
         res.status(500).send("Error al cargar productos.");
     }
 };
+
 
 // Renderizar un carrito específico por ID
 const getCartView = async (req, res) => {
@@ -44,7 +32,7 @@ const getCartView = async (req, res) => {
         if (!cart) return res.status(404).send("Carrito no encontrado");
 
         res.render("cart", {
-            cartId: cid,
+            cartId: cartId,
             products: cart.products.map(item => ({
                 title: item.product.title,
                 description: item.product.description,

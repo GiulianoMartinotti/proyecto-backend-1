@@ -1,0 +1,136 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f9f9f9;
+    margin: 0;
+}
+
+h1 {
+    text-align: center;
+    color: #333;
+}
+
+p {
+    font-size: 1.1em;
+    text-align: center;
+}
+
+ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+li {
+    background-color: #fff;
+    border: 1px solid #ddd;
+    margin: 10px auto;
+    padding: 15px;
+    max-width: 600px;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+li strong {
+    font-size: 1.2em;
+    color: #222;
+}
+
+button {
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    padding: 8px 12px;
+    margin-top: 10px;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+nav {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.nav-button {
+    display: inline-block;
+    text-decoration: none;
+    color: #fff;
+    background-color: #28a745;
+    padding: 10px 18px;
+    margin: 0 10px;
+    border-radius: 6px;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+}
+
+.nav-button:hover {
+    background-color: #1e7e34;
+}
+
+
+/*Estilos del carrito*/
+.cart-title {
+    text-align: center;
+    color: #333;
+    margin-bottom: 30px;
+    font-size: 2rem;
+}
+
+.cart-container {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.cart-list {
+    list-style: none;
+    padding: 0;
+}
+
+.cart-item {
+    background-color: #fdfdfd;
+    border: 1px solid #ccc;
+    padding: 20px;
+    margin-bottom: 20px;
+    border-radius: 10px;
+    box-shadow: 0 1px 6px rgba(0, 0, 0, 0.08);
+}
+
+.cart-item-title {
+    margin: 0 0 10px 0;
+    color: #222;
+    font-size: 1.3rem;
+}
+
+.quantity {
+    font-weight: bold;
+    color: #444;
+}
+
+.empty-cart {
+    text-align: center;
+    color: #666;
+    font-style: italic;
+}
+
+.back-button {
+    display: block;
+    text-align: center;
+    margin-top: 30px;
+    margin-bottom: 30px;
+    color: #fff;
+    background-color: #007bff;
+    padding: 12px 20px;
+    width: fit-content;
+    margin-left: auto;
+    margin-right: auto;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+}
+
+.back-button:hover {
+    background-color: #0056b3;
+}
