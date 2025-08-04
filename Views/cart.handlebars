@@ -1,21 +1,82 @@
 <h1 class="cart-title">Carrito de compras</h1>
 
 {{#if products.length}}
-<div class="cart-container">
-    <ul class="cart-list">
-        {{#each products}}
-        <li class="cart-item">
-            <h3 class="cart-item-title">{{title}}</h3>
-            <p>Descripción: {{description}}</p>
-            <p>Precio: ${{price}}</p>
-            <p>Categoría: {{category}}</p>
-            <p class="quantity">Cantidad: {{quantity}}</p>
-        </li>
-        {{/each}}
-    </ul>
+<div class="cart-grid">
+
+    <div class="cart-products">
+        <ul class="cart-list">
+            {{#each products}}
+            <li class="cart-item">
+                <div class="cart-item-info">
+                    <h3 class="cart-item-title">{{title}}</h3>
+                    <p>Descripción: {{description}}</p>
+                    <p>Precio: ${{price}}</p>
+                    <p>Categoría: {{category}}</p>
+                    <p class="quantity">Cantidad: {{quantity}}</p>
+                    <p>ID del producto: {{_id}}</p>
+                </div>
+                <form class="delete-form" data-product-id="{{_id}}">
+                    <button type="submit" class="delete-btn">❌ Eliminar Producto</button>
+                </form>
+            </li>
+            {{/each}}
+        </ul>
+    </div>
+
+
+    <div class="cart-summary">
+        <h2>Resumen del pedido</h2>
+        <p class="cart-total"><strong>Total ({{totalQuantity}} productos):</strong> {{total}}</p>
+
+        <form action="/api/carts/{{cartId}}" method="POST"
+            onsubmit="return confirm('¿Estás seguro de que deseas vaciar el carrito?')">
+            <button id="clear-cart-btn" class="clear-cart-btn">🗑️ Vaciar carrito</button>
+        </form>
+
+        <button class="checkout-btn">🛍️ Finalizar compra</button>
+    </div>
 </div>
 {{else}}
 <p class="empty-cart">El carrito está vacío.</p>
 {{/if}}
 
 <a href="/" class="back-button">← Volver a productos</a>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const cid = "{{cartId}}";
+
+        document.querySelectorAll('.delete-form').forEach(form => {
+            form.addEventListener('submit', async e => {
+                e.preventDefault();
+                const pid = form.dataset.productId;
+                const res = await fetch(`/api/carts/${cid}/products/${pid}`, {
+                    method: 'DELETE'
+                });
+
+                if (!res.ok) {
+                    const text = await res.text();
+                    console.error('Error:', res.status, text);
+                    alert('Error al eliminar el producto. Detalles en consola.');
+                    return;
+                }
+
+                const data = await res.json();
+                if (data.status === 'success') location.reload();
+                else alert(data.message || 'Error al eliminar producto');
+            });
+        });
+
+        document.getElementById('clear-cart-btn')?.addEventListener('click', async () => {
+            if (!confirm('¿Estás seguro de que deseas vaciar el carrito?')) return;
+
+            const res = await fetch(`/api/carts/${cid}`, {
+                method: 'DELETE'
+            });
+            const data = await res.json();
+            if (data.status === 'success') location.reload();
+            else alert(data.message || 'Error al vaciar carrito');
+        });
+
+    });
+</script>

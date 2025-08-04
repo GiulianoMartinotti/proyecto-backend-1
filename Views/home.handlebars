@@ -1,20 +1,20 @@
-<h1>Lista de productos</h1>
+<h1 class="page-title">Lista de productos</h1>
+
 {{#if products.length}}
-<ul>
+<div class="product-grid">
     {{#each products}}
-    <li>
-        <strong>{{title}}</strong><br />
-        Descripción: {{description}}<br />
-        Precio: ${{price}}<br />
-        Stock: {{stock}}<br />
-        Categoría: {{category}}<br />
+    <div class="product-card">
+        <h2 class="product-title">{{title}}</h2>
+        <p class="product-description">{{description}}</p>
+        <p class="product-price">${{price}}</p>
+        <p class="product-stock">Stock: {{stock}}</p>
+        <p class="product-category">Categoría: {{category}}</p>
         <form action="/api/carts/{{../cartId}}/product/{{_id}}" method="POST">
-            <button type="submit">Agregar al carrito</button>
+            <button type="submit" class="add-to-cart-btn">Agregar al carrito 🛒</button>
         </form>
-    </li>
-    <hr />
+    </div>
     {{/each}}
-</ul>
+</div>
 {{else}}
 <p>No hay productos para mostrar.</p>
 {{/if}}

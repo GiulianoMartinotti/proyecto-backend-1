@@ -11,7 +11,6 @@ const renderHome = async (req, res) => {
         if (!cart) {
             cart = await Cart.create({ products: [] });
         }
-        console.log("Cart usado en la vista:", cart);
         res.render("home", {
             products,
             cartId: cart._id.toString()
@@ -31,15 +30,29 @@ const getCartView = async (req, res) => {
         const cart = await Cart.findById(cartId).populate("products.product").lean();
         if (!cart) return res.status(404).send("Carrito no encontrado");
 
+        const products = cart.products.map(item => ({
+            _id: item.product._id,
+            title: item.product.title,
+            description: item.product.description,
+            price: item.product.price,
+            quantity: item.quantity,
+            category: item.product.category
+        }));
+
+        const total = products.reduce((acc, p) => acc + p.price * p.quantity, 0);
+        const totalQuantity = products.reduce((acc, p) => acc + p.quantity, 0);
+
+        const formattedTotal = new Intl.NumberFormat("es-AR", {
+            style: "currency",
+            currency: "ARS",
+            minimumFractionDigits: 2
+        }).format(total);
+
         res.render("cart", {
-            cartId: cartId,
-            products: cart.products.map(item => ({
-                title: item.product.title,
-                description: item.product.description,
-                price: item.product.price,
-                quantity: item.quantity,
-                category: item.product.category
-            }))
+            cartId,
+            products,
+            total: formattedTotal,
+            totalQuantity
         });
     } catch (err) {
         res.status(500).send("Error al cargar el carrito");
