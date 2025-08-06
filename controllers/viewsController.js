@@ -1,5 +1,6 @@
 import Product from "../models/product.js";
 import Cart from "../models/cart.js";
+import jwt from "jsonwebtoken";
 
 // Función para renderizar la vista principal con productos paginados
 const renderHome = async (req, res) => {
@@ -11,9 +12,22 @@ const renderHome = async (req, res) => {
         if (!cart) {
             cart = await Cart.create({ products: [] });
         }
+
+
+        let user = null;
+        const token = req.cookies?.token;
+        if (token) {
+            try {
+                user = jwt.verify(token, process.env.JWT_SECRET);
+            } catch (err) {
+                console.error("Token inválido");
+            }
+        }
+
         res.render("home", {
             products,
-            cartId: cart._id.toString()
+            cartId: cart._id.toString(),
+            user
         });
     } catch (err) {
         console.error(err);
@@ -48,11 +62,22 @@ const getCartView = async (req, res) => {
             minimumFractionDigits: 2
         }).format(total);
 
+        let user = null;
+        const token = req.cookies?.token;
+        if (token) {
+            try {
+                user = jwt.verify(token, process.env.JWT_SECRET);
+            } catch (err) {
+                console.error("Token inválido");
+            }
+        }
+
         res.render("cart", {
             cartId,
             products,
             total: formattedTotal,
-            totalQuantity
+            totalQuantity,
+            user
         });
     } catch (err) {
         res.status(500).send("Error al cargar el carrito");

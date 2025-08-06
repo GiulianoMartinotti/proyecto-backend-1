@@ -12,6 +12,8 @@ import productsRouter from "./routes/api/productsRouter.js";
 import cartsRouter from "./routes/api/cartsRouter.js"
 import viewsRouter from "./routes/views.js";
 import sessionsRouter from "./routes/api/sessionsRouter.js";
+import cookieParser from "cookie-parser";
+import jwt from "jsonwebtoken";
 
 import { connectToMongo } from "./config/configDB.js";
 
@@ -40,6 +42,22 @@ app.use(session({
 initializePassport();
 app.use(passport.initialize());
 app.use(passport.session());
+app.use(cookieParser());
+
+app.use((req, res, next) => {
+    const token = req.cookies?.token; // nombre de la cookie que vamos a usar más abajo
+    if (!token) {
+        res.locals.user = null;
+        return next();
+    }
+    try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        res.locals.user = decoded; // estará disponible en handlebars como {{user.first_name}} etc.
+    } catch (err) {
+        res.locals.user = null;
+    }
+    next();
+});
 
 
 // Handlebars

@@ -80,6 +80,19 @@ nav {
     transition: all 0.2s ease;
 }
 
+.nav-user {
+    font-size: 1rem;
+    font-weight: 500;
+    margin-right: 1rem;
+    text-decoration: none;
+    pointer-events: none;
+    color: #000;
+}
+
+.nav-user:hover {
+    text-decoration: none;
+}
+
 .nav-link::after {
     content: '';
     position: absolute;
@@ -317,4 +330,51 @@ nav {
 
 .delete-btn:hover {
     background-color: #820000;
+}
+
+
+
+/*Login y register styles*/
+
+.form-container {
+    max-width: 400px;
+    margin: 60px auto;
+    padding: 30px;
+    background-color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.form-container h2 {
+    text-align: center;
+    margin-bottom: 25px;
+}
+
+.form-container label {
+    font-weight: 500;
+    margin-top: 10px;
+}
+
+.form-container input {
+    width: 100%;
+    padding: 8px;
+    margin-top: 5px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+}
+
+.form-container button {
+    width: 100%;
+    padding: 10px;
+    background-color: #000;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+}
+
+.form-container button:hover {
+    background-color: #333;
 }

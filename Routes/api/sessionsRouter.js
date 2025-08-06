@@ -1,6 +1,10 @@
 import { Router } from "express";
+import dotenv from "dotenv";
 import passport from "passport";
 import jwt from "jsonwebtoken";
+
+dotenv.config();
+
 
 const router = Router();
 const JWT_SECRET = process.env.JWT_SECRET;
@@ -38,19 +42,22 @@ router.post(
 
         const token = jwt.sign(payload, JWT_SECRET, { expiresIn: TOKEN_EXPIRES });
 
-        res.cookie('jwtCookie', token, {
-            httpOnly: true,
-            secure: false, // Cambiar a true si usás HTTPS
-            maxAge: 24 * 60 * 60 * 1000 // 1 día
-        });
-
-        res.send({
-            status: "success",
-            message: "Login exitoso",
-            token
-        });
+        res
+            .cookie("token", token, {
+                httpOnly: true,
+                // secure: true, 
+                maxAge: 1000 * 60 * 60 // 1 hora
+            })
+            .status(200)
+            .json({ message: "Login exitoso", token });
     }
 );
+
+// Logout: limpia cookie
+router.get("/logout", (req, res) => {
+    res.clearCookie("token");
+    res.redirect("/login");
+});
 
 
 // Ruta de error para registro fallido
