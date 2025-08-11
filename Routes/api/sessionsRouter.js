@@ -2,6 +2,8 @@ import { Router } from "express";
 import dotenv from "dotenv";
 import passport from "passport";
 import jwt from "jsonwebtoken";
+import UserDTO from "../../dto/userDTO.js";
+import { authJwt } from "../../middlewares/auth.js";
 
 dotenv.config();
 
@@ -74,13 +76,12 @@ router.get("/failLogin", (req, res) => {
 // Ruta protegida con JWT
 router.get(
     "/current",
-    passport.authenticate("jwt", { session: false }),
+    authJwt,
     (req, res) => {
-        res.send({
-            status: "success",
-            payload: req.user
-        });
+        const dto = new UserDTO(req.user);
+        res.send({ status: "success", payload: dto });
     }
 );
+
 
 export default router;

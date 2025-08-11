@@ -14,6 +14,7 @@ import viewsRouter from "./routes/views.js";
 import sessionsRouter from "./routes/api/sessionsRouter.js";
 import cookieParser from "cookie-parser";
 import jwt from "jsonwebtoken";
+import passwordRouter from "./routes/api/passwordRouter.js";
 
 import { connectToMongo } from "./config/configDB.js";
 
@@ -43,16 +44,17 @@ initializePassport();
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(cookieParser());
+app.use("/api/password", passwordRouter);
 
 app.use((req, res, next) => {
-    const token = req.cookies?.token; // nombre de la cookie que vamos a usar más abajo
+    const token = req.cookies?.token;
     if (!token) {
         res.locals.user = null;
         return next();
     }
     try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        res.locals.user = decoded; // estará disponible en handlebars como {{user.first_name}} etc.
+        res.locals.user = decoded;
     } catch (err) {
         res.locals.user = null;
     }

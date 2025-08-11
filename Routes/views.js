@@ -14,4 +14,13 @@ router.get('/register', (req, res) => {
     res.render('register');
 });
 
+router.get('/forgot-password', (req, res) => {
+    res.render('forgotPassword');
+});
+
+router.get('/reset-password', (req, res) => {
+
+    res.render('resetPassword');
+});
+
 export default router;

@@ -1,3 +1,18 @@
-sessionsRouter.get('/current', passport.authenticate('jwt', { session: false }), (req, res) => {
-    res.json({ user: req.user });
+
+router.get("/current", authJwt, (req, res) => {
+    const userDTO = UserDTO.from(req.user);
+    res.json({ status: "success", payload: userDTO });
 });
+
+
+/* Para traer los datos directamente desde mongo en vivo por si se actualizan en tiempo real mientras el token sigue activo
+
+import User from "../../models/user.js";
+
+router.get("/current", authJwt, async (req, res) => {
+    const user = await User.findById(req.user.id).lean();
+    const dto = UserDTO.from(user || req.user);
+    res.json({ status: "success", payload: dto });
+});
+
+*/

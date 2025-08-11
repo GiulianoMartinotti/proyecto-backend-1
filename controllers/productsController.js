@@ -1,4 +1,7 @@
-import Product from "../models/product.js";
+import ProductRepository from "../repositories/productRepository.js";
+
+const productRepo = new ProductRepository();
+
 
 export const getProducts = async (req, res) => {
     try {
@@ -19,7 +22,7 @@ export const getProducts = async (req, res) => {
             lean: true
         };
 
-        const result = await Product.paginate(filter, options);
+        const result = await productRepo.paginate(filter, options);
 
         res.json({
             status: "success",
@@ -41,7 +44,7 @@ export const getProducts = async (req, res) => {
 export const getProductById = async (req, res) => {
     try {
         const { pid } = req.params;
-        const product = await Product.findById(pid);
+        const product = await productRepo.findById(pid);
 
         if (!product) {
             return res.status(404).json({ status: "error", message: "Producto no encontrado" });
@@ -55,7 +58,7 @@ export const getProductById = async (req, res) => {
 
 export const createProduct = async (req, res) => {
     try {
-        const newProduct = await Product.create(req.body);
+        const newProduct = await productRepo.create(req.body);
         res.status(201).json({ status: "success", payload: newProduct });
     } catch (error) {
         res.status(400).json({ status: "error", message: error.message });
@@ -65,7 +68,7 @@ export const createProduct = async (req, res) => {
 export const updateProduct = async (req, res) => {
     try {
         const { pid } = req.params;
-        const updated = await Product.findByIdAndUpdate(pid, req.body, { new: true });
+        const updated = await productRepo.findByIdAndUpdate(pid, req.body, { new: true });
 
         if (!updated) {
             return res.status(404).json({ status: "error", message: "Producto no encontrado" });
@@ -80,7 +83,7 @@ export const updateProduct = async (req, res) => {
 export const deleteProduct = async (req, res) => {
     try {
         const { pid } = req.params;
-        const deleted = await Product.findByIdAndDelete(pid);
+        const deleted = await productRepo.findByIdAndDelete(pid);
 
         if (!deleted) {
             return res.status(404).json({ status: "error", message: "Producto no encontrado" });
@@ -94,7 +97,7 @@ export const deleteProduct = async (req, res) => {
 
 export const getProductsView = async (req, res) => {
     try {
-        const products = await Product.find().lean(); 
+        const products = await productRepo.find().lean();
         res.render("home", { products });
     } catch (error) {
         res.status(500).send("Error al renderizar productos: " + error.message);

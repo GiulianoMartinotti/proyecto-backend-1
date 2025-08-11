@@ -5,15 +5,18 @@ import { createProduct } from "../../controllers/productsController.js";
 import { updateProduct } from "../../controllers/productsController.js";
 import { deleteProduct } from "../../controllers/productsController.js";
 import { getProductsView } from "../../controllers/productsController.js";
+import { requireAuth, authorize } from "../../middlewares/auth.js";
 
 const router = Router();
 
 router.get("/", getProducts);
 router.get("/:pid", getProductById);
-router.post("/", createProduct);
-router.put("/:pid", updateProduct);
-router.delete("/:pid", deleteProduct);
 router.get('/', getProductsView);
+
+// Solo admin:
+router.post("/", requireAuth, authorize("admin"), createProduct);
+router.put("/:pid", requireAuth, authorize("admin"), updateProduct);
+router.delete("/:pid", requireAuth, authorize("admin"), deleteProduct);
 
 
 export default router;
