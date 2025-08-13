@@ -186,6 +186,25 @@ nav {
     color: #F2F2F2;
 }
 
+.login-to-buy {
+    text-decoration: none;
+    background-color: white;
+    color: #525252;
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    margin-top: 1rem;
+    transition: background-color 0.2s;
+    font-size: 12px;
+}
+
+.login-to-buy:hover {
+    background-color: #171717;
+    color: #F2F2F2;
+}
+
 
 /*Estilos del carrito*/
 .cart-title {
@@ -377,4 +396,68 @@ nav {
 
 .form-container button:hover {
     background-color: #333;
+}
+
+/*ticket styles*/
+.ticket-card .card-header {
+    background: var(--bs-body-bg);
+    border-bottom: 1px solid var(--bs-border-color);
+}
+
+.ticket-meta .text-muted {
+    color: var(--bs-secondary-color) !important;
+}
+
+.table thead th {
+    color: var(--bs-secondary-color);
+    font-weight: 600;
+    letter-spacing: .2px;
+}
+
+.fade-in {
+    animation: fadeIn .25s ease-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(6px);
+    }
+
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+
+@media print {
+
+    .navbar,
+    .btn,
+    .card-footer,
+    .back-button {
+        display: none !important;
+    }
+
+    body {
+        background: #fff !important;
+    }
+
+    .card,
+    .ticket-card {
+        box-shadow: none !important;
+        border: 0 !important;
+    }
+
+    .table {
+        border-color: #ccc !important;
+    }
+
+    .table thead th,
+    .table tfoot th {
+        background: #f6f6f6 !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
 }

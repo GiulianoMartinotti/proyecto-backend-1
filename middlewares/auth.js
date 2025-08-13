@@ -26,10 +26,6 @@ function getTokenFromRequest(req) {
     return null;
 }
 
-/**
- * Middleware de autenticación obligatorio.
- * Coloca el payload del token en req.user o devuelve 401.
- */
 export function authJwt(req, res, next) {
     try {
         const token = getTokenFromRequest(req);
@@ -39,12 +35,10 @@ export function authJwt(req, res, next) {
 
         const secret = process.env.JWT_SECRET;
         if (!secret) {
-            // Si olvidamos configurar la variable, mejor fallar explícitamente
             return res.status(500).json({ error: "Falta JWT_SECRET en .env" });
         }
 
         const payload = jwt.verify(token, secret);
-        // En tu login guardás { id, email, first_name, last_name, role }
         req.user = payload;
         return next();
     } catch (err) {
@@ -85,4 +79,10 @@ export function authorizeRoles(...allowed) {
         }
         next();
     };
+}
+
+// Requiere login para vistas (redirige a /login)
+export function requireLoginView(req, res, next) {
+    if (res.locals.user) return next();
+    return res.redirect("/login");
 }

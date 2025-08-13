@@ -13,10 +13,11 @@
         <div class="navbar-logo">RICH👑</div>
         <ul class="navbar-menu">
             <li><a href="/" class="nav-link">Inicio</a></li>
-            <li><a href="/carts/{{cartId}}" class="nav-link">Carrito 🛒</a></li>
+            <li><a href="/carts" class="nav-link">Carrito 🛒</a></li>
 
             {{#if user}}
             <li class="nav-user">Hola, {{user.first_name}}</li>
+            <li><a href="/tickets" class="nav-link">Mis compras</a></li>
             <li><a href="/api/sessions/logout" class="nav-link">Cerrar sesión</a></li>
             {{else}}
             <li><a href="/login" class="nav-link">Iniciar sesión</a></li>
@@ -24,6 +25,10 @@
         </ul>
     </nav>
     {{{body}}}
+
+
+    <!-- SweetAlert2 (CDN) -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </body>
 
 </html>

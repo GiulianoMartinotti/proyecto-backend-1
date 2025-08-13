@@ -11,7 +11,7 @@ const router = Router();
 
 router.get("/", getProducts);
 router.get("/:pid", getProductById);
-router.get('/', getProductsView);
+
 
 // Solo admin:
 router.post("/", requireAuth, authorize("admin"), createProduct);

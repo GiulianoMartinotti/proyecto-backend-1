@@ -14,29 +14,46 @@
                     <p>Categoría: {{category}}</p>
                     <p class="quantity">Cantidad: {{quantity}}</p>
                 </div>
+                {{#if ../user}}
+                {{#if ../cartId}}
                 <form class="delete-form" data-product-id="{{_id}}">
                     <button type="submit" class="delete-btn">❌ Eliminar Producto</button>
                 </form>
+                {{else}}
+                <p><em>No hay carrito activo.</em></p>
+                {{/if}}
+                {{else}}
+                <p><em>Inicia sesión para modificar tu carrito.</em></p>
+                {{/if}}
             </li>
             {{/each}}
         </ul>
     </div>
 
-
     <div class="cart-summary">
         <h2>Resumen del pedido</h2>
         <p class="cart-total"><strong>Total ({{totalQuantity}} productos):</strong> {{total}}</p>
 
-        <form action="/api/carts/{{cartId}}" method="POST"
-            onsubmit="return confirm('¿Estás seguro de que deseas vaciar el carrito?')">
-            <button id="clear-cart-btn" class="clear-cart-btn">🗑️ Vaciar carrito</button>
+        {{#if user}}
+        {{#if cartId}}
+        <form id="clear-cart-form" action="/api/carts/{{cartId}}" method="POST">
+            <button id="clear-cart-btn" type="button" class="clear-cart-btn">🗑️ Vaciar carrito</button>
         </form>
+        {{/if}}
+        {{else}}
+        <p><em>Inicia sesión para vaciar el carrito o finalizar la compra.</em></p>
+        {{/if}}
 
-        <button class="checkout-btn">🛍️ Finalizar compra</button>
+        <button class="checkout-btn" {{#unless user}}disabled title="Inicia sesión para comprar" {{/unless}} {{#unless
+            products.length}}disabled{{/unless}}>
+            🛍️ Finalizar compra
+        </button>
     </div>
 </div>
 {{else}}
-<p class="empty-cart">El carrito está vacío.</p>
+<p class="empty-cart">
+    {{#if message}}{{message}}{{else}}El carrito está vacío.{{/if}}
+</p>
 {{/if}}
 
 <a href="/" class="back-button">← Volver a productos</a>
@@ -44,38 +61,137 @@
 <script>
     document.addEventListener('DOMContentLoaded', () => {
         const cid = "{{cartId}}";
+        const isLoggedIn = {{#if user}}true{{ else}}false{{/if}};
 
-        document.querySelectorAll('.delete-form').forEach(form => {
-            form.addEventListener('submit', async e => {
-                e.preventDefault();
-                const pid = form.dataset.productId;
-                const res = await fetch(`/api/carts/${cid}/products/${pid}`, {
-                    method: 'DELETE'
+
+    const Toast = Swal.mixin({
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 1800,
+        timerProgressBar: true
+    });
+
+    if (!isLoggedIn || !cid) return;
+
+    // Eliminar producto
+    document.querySelectorAll('.delete-form').forEach(form => {
+        form.addEventListener('submit', async e => {
+            e.preventDefault();
+            const pid = form.dataset.productId;
+
+            const ask = await Swal.fire({
+                title: '¿Eliminar este producto?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Sí, eliminar',
+                confirmButtonColor: '#820000',
+                cancelButtonText: 'Cancelar',
+                cancelButtonColor: 'black'
+            });
+            if (!ask.isConfirmed) return;
+
+            try {
+                const res = await fetch(`/api/carts/${cid}/products/${pid}`, { method: 'DELETE' });
+                const data = await res.json();
+                if (res.ok && data.status === 'success') {
+                    await Toast.fire({ icon: 'success', title: 'Producto eliminado' });
+                    location.reload();
+                } else {
+                    Swal.fire('Error', data.message || 'No se pudo eliminar', 'error');
+                }
+            } catch (err) {
+                console.error(err);
+                Swal.fire('Error de red', 'Intenta nuevamente', 'error');
+            }
+        });
+    });
+
+    // Vaciar carrito
+    const clearBtn = document.getElementById('clear-cart-btn');
+    if (clearBtn) {
+        clearBtn.addEventListener('click', async () => {
+            const ask = await Swal.fire({
+                title: '¿Vaciar carrito?',
+                text: 'Esta acción no se puede deshacer',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Vaciar',
+                cancelButtonText: 'Cancelar'
+            });
+            if (!ask.isConfirmed) return;
+
+            try {
+                const res = await fetch(`/api/carts/${cid}`, { method: 'DELETE' });
+                const data = await res.json();
+                if (res.ok && data.status === 'success') {
+                    await Toast.fire({ icon: 'success', title: 'Carrito vaciado' });
+                    location.reload();
+                } else {
+                    Swal.fire('Error', data.message || 'No se pudo vaciar', 'error');
+                }
+            } catch (err) {
+                console.error(err);
+                Swal.fire('Error de red', 'Intenta nuevamente', 'error');
+            }
+        });
+    }
+
+    // Finalizar compra
+    const checkoutBtn = document.querySelector('.checkout-btn');
+    if (checkoutBtn) {
+        checkoutBtn.addEventListener('click', async () => {
+            let timerInterval;
+            try {
+                checkoutBtn.disabled = true;
+
+                
+                await Swal.fire({
+                    title: 'Procesando compra…',
+                    html: 'Cerrando en <b></b>',
+                    timer: 15000,                 
+                    timerProgressBar: true,
+                    allowOutsideClick: false,
+                    allowEscapeKey: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                        const b = Swal.getHtmlContainer().querySelector('b');
+                        timerInterval = setInterval(() => {
+                            const left = Swal.getTimerLeft();
+                            if (left != null) b.textContent = Math.ceil(left / 1000) + 's';
+                        }, 100);
+                    },
+                    willClose: () => {
+                        clearInterval(timerInterval);
+                    }
                 });
 
-                if (!res.ok) {
-                    const text = await res.text();
-                    console.error('Error:', res.status, text);
-                    alert('Error al eliminar el producto. Detalles en consola.');
-                    return;
-                }
-
+                // Disparamos la compra mientras el modal está abierto
+                const res = await fetch(`/api/carts/${cid}/purchase`, { method: 'POST' });
                 const data = await res.json();
-                if (data.status === 'success') location.reload();
-                else alert(data.message || 'Error al eliminar producto');
-            });
+
+                // Cerramos el modal (por si no se cerró por timer)
+                Swal.close();
+
+                if (res.ok && data.status === 'success') {
+                    // redirige la vista del ticket
+                    window.location.href = `/tickets/${data.ticket.code}`;
+                } else {
+                    const out = data.outOfStock?.length || 0;
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'No se pudo completar',
+                        html: `${data.message || 'Revisa los productos.'}${out ? `<br><small>${out} sin stock</small>` : ''}`
+                    });
+                }
+            } catch (err) {
+                console.error(err);
+                Swal.close();
+                Swal.fire('Error de red', 'Intenta nuevamente', 'error');
+            } finally {
+                checkoutBtn.disabled = false;
+            }
         });
-
-        document.getElementById('clear-cart-btn')?.addEventListener('click', async () => {
-            if (!confirm('¿Estás seguro de que deseas vaciar el carrito?')) return;
-
-            const res = await fetch(`/api/carts/${cid}`, {
-                method: 'DELETE'
-            });
-            const data = await res.json();
-            if (data.status === 'success') location.reload();
-            else alert(data.message || 'Error al vaciar carrito');
-        });
-
-    });
+    }
+});
 </script>

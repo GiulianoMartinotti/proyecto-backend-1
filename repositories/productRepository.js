@@ -5,23 +5,28 @@ export default class ProductRepository {
         this.dao = dao;
     }
 
-    list() {
-        return this.dao.find();
+    paginate(filter, options) {
+        return this.dao.paginate(filter, options);
     }
 
-    get(id) {
+    findById(id) {
         return this.dao.findById(id);
     }
 
-    add(data) {
+    create(data) {
         return this.dao.create(data);
     }
 
-    update(id, data) {
-        return this.dao.update(id, data);
+    findByIdAndUpdate(id, data, opts) {
+        return this.dao.findByIdAndUpdate(id, data, opts);
     }
 
-    remove(id) {
-        return this.dao.delete(id);
+    findByIdAndDelete(id) {
+        return this.dao.findByIdAndDelete(id);
+    }
+
+    // listado sin paginar
+    find(filter = {}, projection, options = {}) {
+        return this.dao.find(filter, projection, options);
     }
 }

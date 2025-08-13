@@ -1,0 +1,98 @@
+{{!-- views/ticket.handlebars --}}
+{{!-- views/ticket.handlebars --}}
+{{#if forbidden}}
+<div class="container py-5">
+    <div class="alert alert-warning shadow-sm">No tenés permiso para ver este ticket.</div>
+    <a href="/tickets" class="btn btn-outline-secondary">← Volver a mis compras</a>
+</div>
+{{else}}
+{{#if notFound}}
+<div class="container py-5">
+    <div class="alert alert-danger shadow-sm">No se encontró el ticket con código <b>{{code}}</b>.</div>
+    <a href="/tickets" class="btn btn-outline-secondary">← Volver a mis compras</a>
+</div>
+{{else}}
+<div class="container py-4 fade-in">
+    <div class="card ticket-card shadow-sm">
+        <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2">
+            <div>
+                <h1 class="h4 mb-1">Ticket de compra</h1>
+                <div class="ticket-meta small text-secondary">
+                    <span class="me-3"><span class="text-muted">Fecha:</span> {{fecha}}</span>
+                    <span class="me-3"><span class="text-muted">Comprador:</span> {{purchaserName}}</span>
+                </div>
+            </div>
+            <div class="text-end">
+                <span class="badge bg-body-secondary text-body-emphasis rounded-pill px-3 py-2">
+                    # {{ticket.code}}
+                </span>
+            </div>
+        </div>
+
+        <div class="card-body">
+            {{#if items.length}}
+            <div class="table-responsive">
+                <table class="table table-striped table-hover align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>Producto</th>
+                            <th class="text-end">Cantidad</th>
+                            <th class="text-end">Precio</th>
+                            <th class="text-end">Subtotal</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {{#each items}}
+                        <tr>
+                            <td>{{title}}</td>
+                            <td class="text-end">{{quantity}}</td>
+                            <td class="text-end">{{priceFmt}}</td>
+                            <td class="text-end">{{subtotalFmt}}</td>
+                        </tr>
+                        {{/each}}
+                    </tbody>
+                    <tfoot class="table-group-divider">
+                        <tr class="fw-bold bg-body-tertiary">
+                            <td colspan="3" class="text-end">Total</td>
+                            <td class="text-end">{{total}}</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+            {{else}}
+            <p class="mb-0 text-muted">Este ticket no contiene ítems.</p>
+            {{/if}}
+        </div>
+
+        <div class="card-footer d-flex flex-wrap justify-content-between align-items-center gap-2">
+            <div class="btn-group">
+                <button class="btn btn-outline-secondary" id="btn-print">Imprimir</button>
+                <button class="btn btn-outline-secondary" id="btn-copy">Copiar código</button>
+            </div>
+            <a href="/" class="btn btn-primary">Continuar comprando</a>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // Botón imprimir
+        document.getElementById('btn-print')?.addEventListener('click', () => window.print());
+
+        // Copiar código de ticket
+        const code = "{{ticket.code}}";
+        document.getElementById('btn-copy')?.addEventListener('click', async () => {
+            try {
+                await navigator.clipboard.writeText(code);
+                if (window.Swal) {
+                    const Toast = Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 1400, timerProgressBar: true });
+                    Toast.fire({ icon: 'success', title: 'Código copiado' });
+                }
+            } catch (e) {
+                alert('No se pudo copiar el código.');
+            }
+        });
+    });
+</script>
+{{/if}}
+{{/if}}

@@ -97,7 +97,7 @@ export const deleteProduct = async (req, res) => {
 
 export const getProductsView = async (req, res) => {
     try {
-        const products = await productRepo.find().lean();
+        const products = await productRepo.find();
         res.render("home", { products });
     } catch (error) {
         res.status(500).send("Error al renderizar productos: " + error.message);

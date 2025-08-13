@@ -10,7 +10,16 @@ dotenv.config();
 
 const router = Router();
 const JWT_SECRET = process.env.JWT_SECRET;
-const TOKEN_EXPIRES = '1d';
+const TOKEN_EXPIRES = '1hr';
+
+const isProd = process.env.NODE_ENV === "production";
+const cookieOpts = {
+    httpOnly: true,
+    secure: isProd,
+    sameSite: "lax",
+    maxAge: 1000 * 60 * 60 // 1 hora
+};
+
 
 // Registro (con passport-local)
 router.post(
@@ -45,19 +54,20 @@ router.post(
         const token = jwt.sign(payload, JWT_SECRET, { expiresIn: TOKEN_EXPIRES });
 
         res
-            .cookie("token", token, {
-                httpOnly: true,
-                // secure: true, 
-                maxAge: 1000 * 60 * 60 // 1 hora
-            })
+            .cookie("token", token, cookieOpts)
             .status(200)
-            .json({ message: "Login exitoso", token });
+            .json({ status: "success", message: "Login exitoso" }); // ← no exponemos el token
     }
 );
 
 // Logout: limpia cookie
+router.post("/logout", (req, res) => {
+    res.clearCookie("token", cookieOpts);
+    res.status(200).json({ status: "success", message: "Sesión cerrada" });
+});
+
 router.get("/logout", (req, res) => {
-    res.clearCookie("token");
+    res.clearCookie("token", cookieOpts);
     res.redirect("/login");
 });
 
@@ -74,14 +84,13 @@ router.get("/failLogin", (req, res) => {
 
 
 // Ruta protegida con JWT
-router.get(
-    "/current",
-    authJwt,
-    (req, res) => {
-        const dto = new UserDTO(req.user);
-        res.send({ status: "success", payload: dto });
-    }
-);
+// /current: SOLO DTO no sensible
+router.get("/current", authJwt, (req, res) => {
+    const dto = new UserDTO(req.user);
+    // Evitar caching de info de usuario
+    res.set("Cache-Control", "no-store");
+    res.send({ status: "success", payload: dto });
+});
 
 
 export default router;

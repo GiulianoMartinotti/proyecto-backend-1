@@ -9,12 +9,75 @@
         <p class="product-price">${{price}}</p>
         <p class="product-stock">Stock: {{stock}}</p>
         <p class="product-category">Categoría: {{category}}</p>
-        <form action="/api/carts/{{../cartId}}/product/{{_id}}" method="POST">
+
+        {{#if ../cartId}}
+        <form action="/api/carts/{{../cartId}}/products/{{_id}}" method="POST">
             <button type="submit" class="add-to-cart-btn">Agregar al carrito 🛒</button>
         </form>
+        {{else}}
+        <a href="/login" class="login-to-buy">Inicia sesión para poder comprar</a>
+        {{/if}}
+
+
     </div>
     {{/each}}
 </div>
 {{else}}
 <p>No hay productos para mostrar.</p>
 {{/if}}
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const isLoggedIn = {{#if user}}true{{ else}}false{{/if}};
+    const cartId = "{{cartId}}";
+
+    const Toast = Swal.mixin({
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 1600,
+        timerProgressBar: true
+    });
+
+    document.querySelectorAll('form.add-to-cart').forEach(form => {
+        form.addEventListener('submit', async (e) => {
+            if (!isLoggedIn || !cartId) {
+                e.preventDefault();
+                const ask = await Swal.fire({
+                    icon: 'info',
+                    title: 'Inicia sesión',
+                    text: 'Necesitás iniciar sesión para agregar productos al carrito.',
+                    showCancelButton: true,
+                    confirmButtonText: 'Ir a login',
+                    cancelButtonText: 'Cancelar'
+                });
+                if (ask.isConfirmed) window.location.href = '/login';
+                return;
+            }
+
+            // Interceptamos para usar fetch y quedarnos en la misma página
+            e.preventDefault();
+            try {
+                // Reemplazamos la action para asegurarnos que usa cartId actual
+                const pid = form.action.split('/').pop(); // último segmento ({{_id}})
+                const url = `/api/carts/${cartId}/products/${pid}`;
+
+                const res = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Accept': 'application/json' }
+                });
+
+                const data = await res.json();
+                if (res.ok && data.status === 'success') {
+                    Toast.fire({ icon: 'success', title: data.message || 'Agregado' });
+                } else {
+                    Swal.fire('Error', data.message || 'No se pudo agregar', 'error');
+                }
+            } catch (err) {
+                console.error(err);
+                Swal.fire('Error de red', 'Intenta nuevamente', 'error');
+            }
+        });
+    });
+});
+</script>

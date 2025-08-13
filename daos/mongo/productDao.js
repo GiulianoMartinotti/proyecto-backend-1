@@ -1,8 +1,14 @@
 import Product from "../../models/product.js";
 
 export default class ProductDAO {
-    find(filter = {}) {
-        return Product.find(filter).lean();
+    paginate(filter = {}, options = {}) {
+        return Product.paginate(filter, options);
+    }
+
+    find(filter = {}, projection, options = {}) {
+        const q = Product.find(filter, projection, options);
+        if (options && options.lean === false) return q; 
+        return q.lean();
     }
 
     findById(id) {
@@ -13,11 +19,25 @@ export default class ProductDAO {
         return Product.create(data);
     }
 
-    update(id, data) {
-        return Product.findByIdAndUpdate(id, data, { new: true, lean: true });
+    
+    async findByIdAndUpdate(id, data, opts = {}) {
+        const updated = await Product.findByIdAndUpdate(id, data, { new: true, ...opts });
+        return updated?.toObject?.() ?? updated;
     }
 
-    delete(id) {
-        return Product.findByIdAndDelete(id).lean();
+    async findByIdAndDelete(id) {
+        const deleted = await Product.findByIdAndDelete(id);
+        return deleted?.toObject?.() ?? deleted;
+    }
+
+    //LEGACY 
+    async update(id, data) {
+        const updated = await Product.findByIdAndUpdate(id, data, { new: true });
+        return updated?.toObject?.() ?? updated;
+    }
+
+    async delete(id) {
+        const deleted = await Product.findByIdAndDelete(id);
+        return deleted?.toObject?.() ?? deleted;
     }
 }
