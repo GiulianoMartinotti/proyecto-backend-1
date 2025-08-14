@@ -1,23 +1,228 @@
-<div class="form-container">
-    <h2>Crear cuenta</h2>
-    <form action="/api/sessions/register" method="POST">
-        <label>Nombre:</label>
-        <input type="text" name="first_name" required />
+<div class="auth-wrapper">
+    <div class="card shadow-sm auth-card">
+        <div class="card-body p-4 p-md-5">
+            <h1 class="h3 mb-3 text-center">Crear cuenta</h1>
 
-        <label>Apellido:</label>
-        <input type="text" name="last_name" required />
+            <form id="registerForm" action="/api/sessions/register" method="POST" novalidate>
+                <div class="mb-3">
+                    <label for="first_name" class="form-label">Nombre</label>
+                    <input id="first_name" name="first_name" type="text" class="form-control" required />
+                    <div class="invalid-feedback">Ingresá tu nombre.</div>
+                </div>
 
-        <label>Email:</label>
-        <input type="email" name="email" required />
+                <div class="mb-3">
+                    <label for="last_name" class="form-label">Apellido</label>
+                    <input id="last_name" name="last_name" type="text" class="form-control" required />
+                    <div class="invalid-feedback">Ingresá tu apellido.</div>
+                </div>
 
-        <label>Edad:</label>
-        <input type="number" name="age" min="0" required />
+                <div class="mb-3">
+                    <label for="email" class="form-label">Email</label>
+                    <input id="email" name="email" type="email" class="form-control" autocomplete="email" required />
+                    <div class="invalid-feedback">Ingresá un email válido.</div>
+                </div>
 
-        <label>Contraseña:</label>
-        <input type="password" name="password" required />
+                <!-- Fecha de nacimiento -->
+                <div class="mb-3">
+                    <label class="form-label">Fecha de nacimiento</label>
+                    <div class="row g-2">
+                        <div class="col-5">
+                            <select id="dob-month" class="form-select" required>
+                                <option value="" selected>Mes</option>
+                                <option value="1">Enero</option>
+                                <option value="2">Febrero</option>
+                                <option value="3">Marzo</option>
+                                <option value="4">Abril</option>
+                                <option value="5">Mayo</option>
+                                <option value="6">Junio</option>
+                                <option value="7">Julio</option>
+                                <option value="8">Agosto</option>
+                                <option value="9">Septiembre</option>
+                                <option value="10">Octubre</option>
+                                <option value="11">Noviembre</option>
+                                <option value="12">Diciembre</option>
+                            </select>
+                        </div>
+                        <div class="col-3">
+                            <select id="dob-day" class="form-select" required>
+                                <option value="" selected>Día</option>
+                            </select>
+                        </div>
+                        <div class="col-4">
+                            <select id="dob-year" class="form-select" required>
+                                <option value="" selected>Año</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="invalid-feedback d-block" id="dob-error" style="display:none">Seleccioná una fecha
+                        válida.</div>
+                </div>
 
-        <button type="submit">Registrarse</button>
+                <!-- Campo oculto que mandamos al backend -->
+                <input type="hidden" id="age" name="age" />
 
-        <p>¿Ya tienes cuenta? <a href="/login">Inicia sesión aquí</a></p>
-    </form>
+                <div class="mb-2">
+                    <label for="password" class="form-label">Contraseña</label>
+                    <div class="input-group">
+                        <input id="password" name="password" type="password" class="form-control"
+                            placeholder="Mínimo 6 caracteres" minlength="6" required autocomplete="new-password" />
+                        <button class="btn btn-outline-secondary toggle-pass" type="button"
+                            data-target="password">👁️</button>
+                    </div>
+                    <div class="invalid-feedback">La contraseña debe tener al menos 6 caracteres.</div>
+
+                    <div class="form-text mt-2">
+                        Usá mayúsculas, minúsculas, números y símbolos para mayor seguridad.
+                    </div>
+
+                    <div class="progress mt-2 password-meter" role="progressbar" aria-label="Fuerza de contraseña"
+                        aria-valuemin="0" aria-valuemax="100">
+                        <div class="progress-bar" id="pwd-meter" style="width: 0%"></div>
+                    </div>
+                </div>
+
+                <div class="d-grid gap-2 mt-3 auth-actions">
+                    <button type="submit" class="btn-send-link">Registrarse</button>
+                    <a href="/login" class="btn-back-to-login">¡Ya tienes cuenta? Inicia sesion aqui</a>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>
+
+<script>
+    (() => {
+        const form = document.getElementById('registerForm');
+        const first = document.getElementById('first_name');
+        const last = document.getElementById('last_name');
+        const email = document.getElementById('email');
+        const pwd = document.getElementById('password');
+        const meter = document.getElementById('pwd-meter');
+        const ageInp = document.getElementById('age');
+
+        const mSel = document.getElementById('dob-month');
+        const dSel = document.getElementById('dob-day');
+        const ySel = document.getElementById('dob-year');
+        const dobErr = document.getElementById('dob-error');
+
+        
+        const now = new Date();
+        const currentYear = now.getFullYear();
+        for (let y = currentYear; y >= currentYear - 100; y--) {
+            const opt = document.createElement('option');
+            opt.value = String(y);
+            opt.textContent = String(y);
+            ySel.appendChild(opt);
+        }
+
+        
+        function daysInMonth(year, month) {
+            
+            return new Date(year, month, 0).getDate();
+        }
+        function refreshDays() {
+            const y = parseInt(ySel.value, 10);
+            const m = parseInt(mSel.value, 10);
+            dSel.innerHTML = '<option value="" selected>Día</option>';
+            if (!y || !m) return;
+            const dim = daysInMonth(y, m);
+            for (let d = 1; d <= dim; d++) {
+                const opt = document.createElement('option');
+                opt.value = String(d);
+                opt.textContent = String(d);
+                dSel.appendChild(opt);
+            }
+        }
+        mSel.addEventListener('change', refreshDays);
+        ySel.addEventListener('change', refreshDays);
+
+        
+        document.querySelectorAll('.toggle-pass').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const target = document.getElementById(btn.dataset.target);
+                target.type = target.type === 'password' ? 'text' : 'password';
+            });
+        });
+
+        
+        function scorePwd(p) {
+            let s = 0;
+            if (p.length >= 6) s += 25;
+            if (/[a-z]/.test(p) && /[A-Z]/.test(p)) s += 25;
+            if (/\d/.test(p)) s += 25;
+            if (/[^\w\s]/.test(p)) s += 25;
+            return Math.min(100, s);
+        }
+        function updateMeter() {
+            const val = scorePwd(pwd.value);
+            meter.style.width = val + '%';
+            meter.classList.remove('bg-danger', 'bg-warning', 'bg-success');
+            if (val < 50) meter.classList.add('bg-danger');
+            else if (val < 80) meter.classList.add('bg-warning');
+            else meter.classList.add('bg-success');
+        }
+        pwd.addEventListener('input', updateMeter);
+        updateMeter();
+
+        
+        function setInvalid(el, on) {
+            if (on) el.classList.add('is-invalid');
+            else el.classList.remove('is-invalid');
+        }
+        function isValidEmail(v) {
+            return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+        }
+        function calcAge(y, m, d) {
+            const today = new Date();
+            let age = today.getFullYear() - y;
+            const mDiff = today.getMonth() + 1 - m;
+            const dDiff = today.getDate() - d;
+            if (mDiff < 0 || (mDiff === 0 && dDiff < 0)) age--;
+            return age;
+        }
+
+        form.addEventListener('submit', (e) => {
+
+            let ok = true;
+            if (!first.value.trim()) { setInvalid(first, true); ok = false; } else setInvalid(first, false);
+            if (!last.value.trim()) { setInvalid(last, true); ok = false; } else setInvalid(last, false);
+            if (!isValidEmail(email.value.trim())) { setInvalid(email, true); ok = false; } else setInvalid(email, false);
+            if (pwd.value.trim().length < 6) { setInvalid(pwd, true); ok = false; } else setInvalid(pwd, false);
+
+
+            const y = parseInt(ySel.value, 10);
+            const m = parseInt(mSel.value, 10);
+            const d = parseInt(dSel.value, 10);
+
+            let dobOk = !!(y && m && d);
+            if (dobOk) {
+                
+                const dt = new Date(y, m - 1, d);
+                dobOk = dt.getFullYear() === y && (dt.getMonth() + 1) === m && dt.getDate() === d;
+            }
+
+            if (!dobOk) {
+                dobErr.style.display = 'block';
+                ok = false;
+            } else {
+                dobErr.style.display = 'none';
+                const age = calcAge(y, m, d);
+                const MIN_AGE = 13, MAX_AGE = 100;   
+                if (age < MIN_AGE || age > MAX_AGE) {
+                    dobErr.textContent = `La edad debe estar entre ${MIN_AGE} y ${MAX_AGE} años.`;
+                    dobErr.style.display = 'block';
+                    ok = false;
+                } else {
+                    dobErr.style.display = 'none';
+                    ageInp.value = age; 
+                }
+            }
+
+            if (!ok) {
+                e.preventDefault();
+                if (window.Toast) Toast.fire({ icon: 'warning', title: 'Revisá los campos' });
+            }
+            
+        });
+    })();
+</script>

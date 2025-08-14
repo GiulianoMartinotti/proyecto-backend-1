@@ -29,5 +29,4 @@ export async function sendPasswordResetEmail(to, resetLink) {
     });
 }
 
-console.log('SMTP_USER:', process.env.SMTP_USER, 'SMTP_PASS set:', !!process.env.SMTP_PASS);
 

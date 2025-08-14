@@ -117,7 +117,9 @@
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonText: 'Vaciar',
-                cancelButtonText: 'Cancelar'
+                confirmButtonColor: '#820000',
+                cancelButtonText: 'Cancelar',
+                cancelButtonColor: 'black'
             });
             if (!ask.isConfirmed) return;
 
@@ -148,8 +150,7 @@
                 
                 await Swal.fire({
                     title: 'Procesando compra…',
-                    html: 'Cerrando en <b></b>',
-                    timer: 15000,                 
+                    timer: 5000,                 
                     timerProgressBar: true,
                     allowOutsideClick: false,
                     allowEscapeKey: false,
